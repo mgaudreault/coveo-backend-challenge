@@ -6,10 +6,9 @@ from pymongo import MongoClient
 
 csv.field_size_limit(1000000000)
 
-client = MongoClient('localhost')
-db = client['coveo-challenge']
-
-db.drop_collection('cities');
+client = MongoClient('mongodb://localhost:27017/coveo-challenge')
+db = client.get_default_database()
+db.drop_collection('cities')
 cities = db.cities;
 
 with open('../data/cities_canada-usa.tsv', 'r') as csvfile:
