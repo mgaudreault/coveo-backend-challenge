@@ -1,6 +1,6 @@
 'use strict'
 import City from '../models/city';
-import _ from 'underscore';
+import _ from 'lodash';
 
 function getSuggestions(partialText, longitude, latitude, callback) {
   let results = City.find({name: {$regex:`.*${partialText}.*`, $options: 'i'}}).lean().exec((err, suggestions) => {
@@ -15,10 +15,36 @@ function getSuggestions(partialText, longitude, latitude, callback) {
         });
       }
 
-      callback(err, suggestions);
+      let sortedResults = scoreResults(suggestions, partialText);
+
+      callback(err, sortedResults);
     }
   });
 }
+
+
+/**
+ * Base score of 500 for perfect string match
+ * Max score of 250 for distance
+ */
+function scoreResults(suggestions, partialText) {
+  let suggestionsDetails = _.map(suggestions, suggestion => {
+    suggestion.lengthDifference = suggestion.name.length - partialText.length;
+    // suggestion.distanceScore = (suggestion.distance > 2500) ? 2500 : suggestion.distance;
+    return suggestion;
+  });
+
+  let scoredResults = _.map(suggestionsDetails, (suggestion) => {
+    suggestion.score = (50 - suggestion.lengthDifference) * 10 + (2500 - suggestion.distance) / 10;
+    return suggestion
+  });
+
+  let sortedResults = _.orderBy(scoredResults, (r) => {return r.score}, 'desc');
+  console.log(sortedResults);
+
+  return sortedResults;
+}
+
 
 /**
  * Compute distance in km between two coordinates using equirectangular approximation
