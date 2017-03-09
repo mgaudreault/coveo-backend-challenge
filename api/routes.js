@@ -1,16 +1,17 @@
 'use strict';
 import express from 'express';
-import getSuggestions from './lib/suggestions'
-var router = express.Router();
+import getSuggestions from './lib/suggestions';
 
-router.get('/suggestions', (req, res) => {
+let router = new express.Router();
+
+router.get('/suggestions', (req, res) => {
   let q = req.query;
 
   getSuggestions(q.q, q.longitude, q.latitude, (err, suggestions) => {
     if (err) {
 
     } else {
-      res.send(suggestions);
+      res.json({suggestions: suggestions});
     }
   });
 });

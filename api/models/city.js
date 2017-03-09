@@ -1,24 +1,35 @@
 'use strict';
-import mongoose from 'mongoose'
-import { mongoURI } from '../../config/database'
+import mongoose from 'mongoose';
+import {mongoURI} from '../../config/database';
+
 mongoose.connect(mongoURI);
 
-var citySchema = new mongoose.Schema({
+let citySchema = new mongoose.Schema({
   name: String,
   country_code: String,
   admin1_code: String,
   longitude: Number,
-  latitude: Number
+  latitude: Number,
 });
 
+/**
+ * Get a non ambiguous name from a city object
+ * @param {object} city
+ * @return {string} Long city name
+ */
 function getCityFullName(city) {
   if (city.country_code === 'CA') {
-    return `${city.name}, ${city.country_code}, ${canadaAdminCodeToString(city.admin1_code)} `
+    return `${city.name}, ${city.country_code}, ${canadaAdminCodeToString(city.admin1_code)}`;
   } else {
-    return `${city.name}, ${city.country_code}, ${city.admin1_code} `
+    return `${city.name}, ${city.country_code}, ${city.admin1_code}`;
   }
 }
 
+/**
+ * Get Canadian province from admin1 code
+ * @param {number} code
+ * @return {string} Canadian province string
+ */
 function canadaAdminCodeToString(code) {
   switch (code) {
     case '01': return 'AB';
@@ -37,5 +48,9 @@ function canadaAdminCodeToString(code) {
   }
 }
 
-var City = mongoose.model('City', citySchema);
+/**
+ * City model
+ */
+let City = mongoose.model('City', citySchema);
+
 export {City, getCityFullName};
