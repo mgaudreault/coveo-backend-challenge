@@ -5,7 +5,8 @@ var router = express.Router();
 
 router.get('/suggestions', (req, res) => {
   let q = req.query;
-  getSuggestions(q.q, 0, 0, (err, suggestions) => {
+
+  getSuggestions(q.q, q.longitude, q.latitude, (err, suggestions) => {
     if (err) {
 
     } else {
