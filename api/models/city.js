@@ -1,7 +1,7 @@
 'use strict';
 import mongoose from 'mongoose'
-
-mongoose.connect('mongodb://localhost/coveo-challenge');
+import { mongoURI } from '../../config/database'
+mongoose.connect(mongoURI);
 
 var citySchema = new mongoose.Schema({
   name: String,
