@@ -1,14 +1,10 @@
 'use strict';
 import express from 'express';
-import City from './models/city';
-
 var app = express();
 
-app.get('/suggestions', (req, res) => {
-  let q = req.query;
+import router from './api/routes'
 
-  res.send(q);
-});
+app.use(router);
 
 var server = app.listen(8080, () => {
   var host = server.address().address
