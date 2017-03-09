@@ -2,19 +2,19 @@
   "name": "coveo-backend-challenge",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha --require babel-register",
-    "build": "babel src -d lib",
-    "start": "nodemon server.js --exec babel-node --presets env"
+    "postinstall": "babel . --ignore node_modules,test -d build",
+    "start": "node build/server.js",
+    "start-dev": "nodemon server.js --exec babel-node --presets env"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
     "lodash": "^4.17.4",
-    "mongoose": "^4.8.6",
-    "underscore": "^1.8.3"
+    "mongoose": "^4.8.6"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
@@ -22,5 +22,8 @@
     "babel-register": "^6.23.0",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0"
+  },
+  "engines": {
+    "node": "6.10.0"
   }
 }
