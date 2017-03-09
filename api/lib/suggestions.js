@@ -1,5 +1,5 @@
 'use strict'
-import City from '../models/city';
+import { City, getCityFullName } from '../models/city';
 import _ from 'lodash';
 
 function getSuggestions(partialText, longitude, latitude, callback) {
@@ -22,7 +22,6 @@ function getSuggestions(partialText, longitude, latitude, callback) {
   });
 }
 
-
 /**
  * Base score of 500 for perfect string match
  * Max score of 250 for distance
@@ -31,6 +30,7 @@ function scoreResults(suggestions, partialText) {
   let suggestionsDetails = _.map(suggestions, suggestion => {
     suggestion.lengthDifference = suggestion.name.length - partialText.length;
     // suggestion.distanceScore = (suggestion.distance > 2500) ? 2500 : suggestion.distance;
+    suggestion.lel = suggestion.fullName;
     return suggestion;
   });
 
@@ -39,10 +39,15 @@ function scoreResults(suggestions, partialText) {
     return suggestion
   });
 
-  let sortedResults = _.orderBy(scoredResults, (r) => {return r.score}, 'desc');
-  console.log(sortedResults);
+  // format results to be sent
+  let results = _.map(scoredResults, (result) => {
+    return {
+      name: getCityFullName(result),
+      score: result.score / 750
+    };
+  });
 
-  return sortedResults;
+  return _.orderBy(results, 'score', 'desc');
 }
 
 
