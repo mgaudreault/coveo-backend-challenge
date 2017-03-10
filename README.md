@@ -1,3 +1,19 @@
+# How-to run
+With a mongodb instance running, use `npm run start-dev` for developpement. For deployment, run `npm build` first then `npm start`.
+
+To execute tests, run `npm test`.
+
+To generate insert data in the database, use `script/importCities.py`. 
+
+# Solution details
+## Implementation
+Implemented using ExpressJS as the router and Mongoose as the DB connector using es2015 syntax.
+
+The score algorithm uses the equirectangular approximation for distance, the number of erroneous letters in the suggestion and checks if the query string is at the beginning of the suggestion.
+
+## Not implemented ideas
+ - Create a query cache
+    - Reason : Might be to heavy / not really useful for a suggestion service
 
 
 # Original README
