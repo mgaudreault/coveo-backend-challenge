@@ -10,19 +10,13 @@ import _ from 'lodash';
  * @param {function} callback
  */
 function getSuggestions(partialText, longitude, latitude, callback) {
-  City.find({name: {$regex: `.*${partialText}.*`, $options: 'i'}}).lean().exec((err, suggestions) => {
+  City.find({name: {$regex: `.*${partialText}.*`, $options: 'i'}}).lean().exec((err, cities) => {
     if (err) {
       console.log(err);
     } else {
-      suggestions = _.map(suggestions, function(suggestion) {
-        suggestion.distance = getDistance(suggestion, longitude, latitude);
-        return suggestion;
-      });
+      let scoredResults = scoreResults(cities, partialText, longitude, latitude);
 
-
-      let sortedResults = scoreResults(suggestions, partialText);
-
-      callback(err, sortedResults);
+      callback(err, scoredResults);
     }
   });
 }
@@ -34,24 +28,30 @@ function getSuggestions(partialText, longitude, latitude, callback) {
  * 100 if begins with query
  * @param {array} suggestions
  * @param {string} partialText
+ * @param {number} longitude
+ * @param {number} latitude
  * @return {array} sorted list of suggestions
  */
-function scoreResults(suggestions, partialText) {
-  let suggestionsDetails = _.map(suggestions, (suggestion) => {
-    suggestion.lengthDifference = suggestion.name.length - partialText.length;
-    return suggestion;
-  });
+function scoreResults(suggestions, partialText, longitude, latitude) {
+  let scoredSuggestions = _.map(suggestions, function(suggestion) {
+    let distance = getDistance(suggestion, longitude, latitude);
+    console.log(distance);
 
-  let scoredResults = _.map(suggestionsDetails, (suggestion) => {
-    suggestion.score = Math.max(0, 50 - suggestion.lengthDifference) * 10 + Math.max(2500 - suggestion.distance) / 10 + suggestion.name.startsWith(partialText) ? 100 : 0;
+    let lengthDifference = suggestion.name.length - partialText.length;
+    console.log(lengthDifference);
+
+
+    suggestion.score = (Math.max(0, 50-lengthDifference) * 10
+                       +Math.max(2500-distance) / 10
+                       +(suggestion.name.startsWith(partialText) ? 100 : 0))/850;
     return suggestion;
   });
 
   // format results to be sent
-  let results = _.map(scoredResults, (result) => {
+  let results = _.map(scoredSuggestions, (result) => {
     return {
       name: getCityFullName(result),
-      score: result.score / 850,
+      score: result.score,
     };
   });
 
@@ -67,7 +67,7 @@ function scoreResults(suggestions, partialText) {
  * @return {number} distance in km
  */
 function getDistance(city, longitude, latitude) {
-  if (longitude !== undefined && latitude !== undefined) {
+  if (!isNaN(longitude) && !isNaN(latitude)) {
     let long1 = city.longitude * Math.PI / 180;
     let long2 = longitude * Math.PI / 180;
     let lat1 = city.latitude * Math.PI / 180;
