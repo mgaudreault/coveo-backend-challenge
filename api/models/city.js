@@ -1,5 +1,7 @@
 'use strict';
 import mongoose from '../connection';
+import _ from 'lodash';
+import {CITY_ACCEPTED_FACETS} from '../../config/facets';
 
 let citySchema = new mongoose.Schema({
   name: {type: [String], index: true},
@@ -46,8 +48,25 @@ function canadaAdminCodeToString(code) {
 }
 
 /**
+ * Extract facets from a query to be used in an "and" query.
+ * @param {object} query Query object
+ * @return {array} Array of object to provide to "and()"
+ */
+function extractCityFacets(query) {
+  return _.reduce(CITY_ACCEPTED_FACETS, (memo, value) => {
+    if (value in query) {
+      let obj = {};
+      obj[value] = query[value];
+      memo.push(obj);
+    }
+    return memo;
+  }, []);
+}
+
+
+/**
  * City model
  */
 let City = mongoose.model('City', citySchema);
 
-export {City, getCityFullName};
+export {City, getCityFullName, extractCityFacets};

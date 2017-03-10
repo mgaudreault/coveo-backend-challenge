@@ -7,27 +7,38 @@ import _ from 'lodash';
  * @param {string} partialText
  * @param {number} longitude
  * @param {number} latitude
- * @param {function} callback
+ * @param {array} facets As an array of objects
+ * @param {function} callback (err, suggestions)
  */
-function getSuggestions(partialText, longitude, latitude, callback) {
-  City.find({name: {$regex: `.*${partialText}.*`, $options: 'i'}}).lean().exec().then((cities) => {
-    if (partialText == null) {
-      callback('Please provide a query in parameter "q"');
-      return;
-    }
+function getSuggestions(partialText, longitude, latitude, facets, callback) {
+  if (partialText == null) {
+    callback('Please provide a query in parameter "q"');
+    return;
+  }
 
-    if (longitude!==undefined || latitude!==undefined) {
-      if (isNaN(longitude) || isNaN(latitude)) {
-      callback('Longitude and latitude parameters must be provided together and must be numeric');
-      return;
-      }
+  if (longitude!==undefined || latitude!==undefined) {
+    if (isNaN(longitude) || isNaN(latitude)) {
+    callback('Longitude and latitude parameters must be provided together and must be numeric');
+    return;
     }
+  }
 
+  let query = City.find({
+    name: {$regex: `.*${partialText}.*`, $options: 'i'},
+  });
+  // add "$and" to the query with the facets
+  if (facets.length !== 0) {
+    query = query.and(facets);
+  }
+
+  query.lean().exec().then((cities) => {
     callback(null, scoreResults(cities, partialText, longitude, latitude));
     return;
   }, (err) => {
     callback(err);
+    return;
   });
+  return;
 }
 
 /**
