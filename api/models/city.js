@@ -5,7 +5,7 @@ import {mongoURI} from '../../config/database';
 mongoose.connect(mongoURI);
 
 let citySchema = new mongoose.Schema({
-  name: String,
+  name: {type: [String], index: true},
   country_code: String,
   admin1_code: String,
   longitude: Number,

@@ -12,11 +12,22 @@ import _ from 'lodash';
 function getSuggestions(partialText, longitude, latitude, callback) {
   City.find({name: {$regex: `.*${partialText}.*`, $options: 'i'}}).lean().exec((err, cities) => {
     if (err) {
-      console.log(err);
+      callback(err);
     } else {
+      if (partialText == null) {
+        callback('Please provide a query in parameter "q"');
+        return;
+      }
+
+      if (longitude!==undefined || latitude!==undefined) {
+        if (isNaN(longitude) || isNaN(latitude)) {
+        callback('Longitude and latitude parameters must be provided together and must be numeric');
+        return;
+        }
+      }
       let scoredResults = scoreResults(cities, partialText, longitude, latitude);
 
-      callback(err, scoredResults);
+      callback(null, scoredResults);
     }
   });
 }
@@ -35,11 +46,7 @@ function getSuggestions(partialText, longitude, latitude, callback) {
 function scoreResults(suggestions, partialText, longitude, latitude) {
   let scoredSuggestions = _.map(suggestions, function(suggestion) {
     let distance = getDistance(suggestion, longitude, latitude);
-    console.log(distance);
-
     let lengthDifference = suggestion.name.length - partialText.length;
-    console.log(lengthDifference);
-
 
     suggestion.score = (Math.max(0, 50-lengthDifference) * 10
                        +Math.max(2500-distance) / 10
@@ -52,6 +59,8 @@ function scoreResults(suggestions, partialText, longitude, latitude) {
     return {
       name: getCityFullName(result),
       score: result.score,
+      longitude: result.longitude,
+      latitude: result.latitude,
     };
   });
 
@@ -67,7 +76,7 @@ function scoreResults(suggestions, partialText, longitude, latitude) {
  * @return {number} distance in km
  */
 function getDistance(city, longitude, latitude) {
-  if (!isNaN(longitude) && !isNaN(latitude)) {
+  if (longitude !== undefined && latitude !== undefined) {
     let long1 = city.longitude * Math.PI / 180;
     let long2 = longitude * Math.PI / 180;
     let lat1 = city.latitude * Math.PI / 180;

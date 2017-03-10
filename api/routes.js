@@ -9,7 +9,7 @@ router.get('/suggestions', (req, res) => {
 
   getSuggestions(q.q, q.longitude, q.latitude, (err, suggestions) => {
     if (err) {
-
+      res.status(400).send(err);
     } else {
       res.json({suggestions: suggestions});
     }
