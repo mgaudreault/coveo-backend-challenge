@@ -5,6 +5,8 @@ To execute tests, run `npm test`.
 
 To generate insert data in the database, use `script/importCities.py`. 
 
+A deployed version is preset at : https://mgaudreault-sugg-service.herokuapp.com/suggestions
+
 # Solution details
 ## Implementation
 Implemented using ExpressJS as the router and Mongoose as the DB connector using es2015 syntax.
