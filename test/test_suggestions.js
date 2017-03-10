@@ -3,6 +3,7 @@ import 'babel-polyfill';
 import assert from 'assert';
 import getSuggestions from '../api/lib/suggestions';
 
+
 describe('Suggestion methods', function() {
   describe('getSuggestions()', function() {
     it('should return 5 results for \'londo\' query', function(done) {
