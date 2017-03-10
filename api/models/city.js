@@ -1,8 +1,5 @@
 'use strict';
-import mongoose from 'mongoose';
-import {mongoURI} from '../../config/database';
-
-mongoose.connect(mongoURI);
+import mongoose from '../connection';
 
 let citySchema = new mongoose.Schema({
   name: {type: [String], index: true},

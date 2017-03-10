@@ -10,25 +10,23 @@ import _ from 'lodash';
  * @param {function} callback
  */
 function getSuggestions(partialText, longitude, latitude, callback) {
-  City.find({name: {$regex: `.*${partialText}.*`, $options: 'i'}}).lean().exec((err, cities) => {
-    if (err) {
-      callback(err);
-    } else {
-      if (partialText == null) {
-        callback('Please provide a query in parameter "q"');
-        return;
-      }
-
-      if (longitude!==undefined || latitude!==undefined) {
-        if (isNaN(longitude) || isNaN(latitude)) {
-        callback('Longitude and latitude parameters must be provided together and must be numeric');
-        return;
-        }
-      }
-      let scoredResults = scoreResults(cities, partialText, longitude, latitude);
-
-      callback(null, scoredResults);
+  City.find({name: {$regex: `.*${partialText}.*`, $options: 'i'}}).lean().exec().then((cities) => {
+    if (partialText == null) {
+      callback('Please provide a query in parameter "q"');
+      return;
     }
+
+    if (longitude!==undefined || latitude!==undefined) {
+      if (isNaN(longitude) || isNaN(latitude)) {
+      callback('Longitude and latitude parameters must be provided together and must be numeric');
+      return;
+      }
+    }
+
+    callback(null, scoreResults(cities, partialText, longitude, latitude));
+    return;
+  }, (err) => {
+    callback(err);
   });
 }
 
