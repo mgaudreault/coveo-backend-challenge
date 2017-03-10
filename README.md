@@ -11,6 +11,13 @@ Implemented using ExpressJS as the router and Mongoose as the DB connector using
 
 The score algorithm uses the equirectangular approximation for distance, the number of erroneous letters in the suggestion and checks if the query string is at the beginning of the suggestion.
 
+## Extra implementation
+ - Added a way to handle facets for the search suggestions. 
+   - Right now the facet must have the same name as the DB key.
+   - To enable a new facet, add it in /config/facets.js.
+   - Facets are only used in an "$and" mongodb query, but could be upgraded for more uses.
+   
+
 ## Not implemented ideas
  - Create a query cache
     - Reason : Might be to heavy / not really useful for a suggestion service
